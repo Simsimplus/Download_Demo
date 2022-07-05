@@ -19,6 +19,8 @@ import androidx.compose.runtime.*
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.focus.FocusRequester
+import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
@@ -85,6 +87,9 @@ fun Content(
             it.delete()
         }
     }.path
+    val focusRequester = remember {
+        FocusRequester()
+    }
     DownloadDemoTheme {
         // A surface container using the 'background' color from the theme
         Surface(
@@ -101,6 +106,7 @@ fun Content(
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
                 OutlinedTextField(
+                    modifier = Modifier.focusRequester(focusRequester),
                     readOnly = !buttonEnable,
                     value = url,
                     onValueChange = {
