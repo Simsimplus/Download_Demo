@@ -22,6 +22,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
 import androidx.core.content.FileProvider
@@ -206,26 +207,35 @@ fun InfoDialog(
                 LaunchedEffect(uiState) {
                     installApk(uiState.uri, ctx)
                 }
-                AlertDialog(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .height(100.dp),
+                Dialog(
                     onDismissRequest = { showing = false },
-                    text = {
-                        Box(modifier = Modifier.fillMaxSize()) {
+                ) {
+                    Card(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .height(150.dp),
+                    ) {
+                        Column(
+                            modifier = Modifier
+                                .padding(24.dp)
+                                .fillMaxSize()
+                        ) {
                             Text(
-                                modifier = Modifier.align(Alignment.Center),
+                                modifier = Modifier
+                                    .align(Alignment.CenterHorizontally)
+                                    .weight(1f),
+                                textAlign = TextAlign.Center,
                                 text = "下载成功",
-                                color = MaterialTheme.colorScheme.primary
                             )
-                        }
-                    },
-                    confirmButton = {
-                        TextButton(onClick = { installApk(uiState.uri, ctx) }) {
-                            Text(text = "安装")
+                            TextButton(
+                                modifier = Modifier.align(Alignment.CenterHorizontally),
+                                onClick = { installApk(uiState.uri, ctx) }
+                            ) {
+                                Text(text = "安装")
+                            }
                         }
                     }
-                )
+                }
             }
             UiState.Pause -> {
                 Dialog(onDismissRequest = { showing = false }) {
