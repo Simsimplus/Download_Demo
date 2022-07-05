@@ -16,6 +16,7 @@ import androidx.lifecycle.viewModelScope
 import com.liulishuo.filedownloader.BaseDownloadTask
 import com.liulishuo.filedownloader.FileDownloadListener
 import com.liulishuo.filedownloader.FileDownloader
+import io.simsim.download.demo.utils.DataStore
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.launch
@@ -49,6 +50,7 @@ class DownloadViewModel : ViewModel() {
             .setMimeType(mime)
             .setDestinationInExternalPublicDir(Environment.DIRECTORY_DOWNLOADS, fileName)
         val downloadId = downloadManager.enqueue(downloadRequest)
+        DataStore.lastDownloadId = downloadId
         appCtx.registerReceiver(object : BroadcastReceiver() {
             override fun onReceive(context: Context?, intent: Intent?) {
                 val id = intent?.getLongExtra(DownloadManager.EXTRA_DOWNLOAD_ID, -1) ?: -1

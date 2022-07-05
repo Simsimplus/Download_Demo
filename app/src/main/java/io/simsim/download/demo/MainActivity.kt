@@ -31,11 +31,13 @@ import androidx.lifecycle.lifecycleScope
 import com.google.android.material.snackbar.Snackbar
 import com.liulishuo.filedownloader.FileDownloader
 import io.simsim.download.demo.ui.theme.DownloadDemoTheme
+import io.simsim.download.demo.utils.DataStore
 import io.simsim.download.demo.utils.NetworkConnectionMonitor
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 import splitties.permissions.requestPermission
 import splitties.snackbar.snackForever
+import splitties.systemservices.downloadManager
 import java.io.File
 
 class MainActivity : AppCompatActivity() {
@@ -77,6 +79,29 @@ class MainActivity : AppCompatActivity() {
 fun Content(
     vm: DownloadViewModel,
 ) = LocalContext.current.run {
+    var lastDownloadFileUri by remember {
+        mutableStateOf<Uri?>(null)
+    }
+    LaunchedEffect(true) {
+        val lastDownloadId = DataStore.lastDownloadId
+        if (lastDownloadId != -1L) {
+            downloadManager.getUriForDownloadedFile(lastDownloadId).also { uri ->
+                if (kotlin.runCatching {
+                        contentResolver.openInputStream(uri).use {}
+                        true
+                    }.getOrDefault(false)) {
+                    lastDownloadFileUri = uri
+                }
+            }
+            DataStore.lastDownloadId = -1
+        }
+    }
+    if (lastDownloadFileUri != null) {
+        lastDownloadFileUri?.let {
+            InfoDialog(uiState = UiState.Success(it))
+        }
+    }
+
     val uiState by vm.uiState.collectAsState()
     val buttonEnable by NetworkConnectionMonitor.connectionFlow.collectAsState(initial = false)
     var url by rememberSaveable {
