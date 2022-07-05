@@ -21,12 +21,15 @@ android {
 
     buildTypes {
         release {
+            manifestPlaceholders appName: '下载demo'
             minifyEnabled true
             shrinkResources true
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
             applicationIdSuffix '.release'
+            versionNameSuffix '.release'
         }
         debug {
+            manifestPlaceholders appName: '下载demo.debug'
             applicationIdSuffix '.debug'
             versionNameSuffix '.debug'
         }
