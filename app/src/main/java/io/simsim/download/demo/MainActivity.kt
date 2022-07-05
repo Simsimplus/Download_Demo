@@ -211,9 +211,13 @@ fun InfoDialog(
                         .fillMaxWidth()
                         .height(100.dp),
                     onDismissRequest = { showing = false },
-                    title = {
+                    text = {
                         Box(modifier = Modifier.fillMaxSize()) {
-                            Text(modifier = Modifier.align(Alignment.Center), text = "下载成功")
+                            Text(
+                                modifier = Modifier.align(Alignment.Center),
+                                text = "下载成功",
+                                color = MaterialTheme.colorScheme.primary
+                            )
                         }
                     },
                     confirmButton = {
