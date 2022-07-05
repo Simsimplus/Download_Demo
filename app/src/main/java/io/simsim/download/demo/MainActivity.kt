@@ -229,9 +229,9 @@ fun InfoDialog(
             }
             UiState.None -> {}
             is UiState.Success -> Dialog(onDismissRequest = { showing = false }) {
-                LaunchedEffect(uiState) {
-                    installApk(uiState.uri, ctx)
-                }
+//                LaunchedEffect(uiState) {
+//                    installApk(uiState.uri, ctx)
+//                }
                 Dialog(
                     onDismissRequest = { showing = false },
                 ) {
