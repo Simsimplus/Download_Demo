@@ -82,7 +82,9 @@ class DownloadViewModel : ViewModel() {
                             uiState.value = UiState.Pause
                         }
                         DownloadManager.STATUS_FAILED -> {
-                            uiState.value = UiState.Failure(Throwable(""))
+                            val reason =
+                                cursor.getString(cursor.getColumnIndex(DownloadManager.COLUMN_REASON))
+                            uiState.value = UiState.Failure(Throwable(reason))
                             isDownloadFinished = true
                         }
                         DownloadManager.STATUS_PENDING -> {

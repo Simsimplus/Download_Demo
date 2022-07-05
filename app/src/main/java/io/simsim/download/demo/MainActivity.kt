@@ -169,10 +169,10 @@ fun InfoDialog(
                     Card(
                         modifier = Modifier
                             .fillMaxWidth()
-                            .heightIn(min = 100.dp)
+                            .height(100.dp)
                     ) {
                         Column(
-                            modifier = Modifier.fillMaxWidth(),
+                            modifier = Modifier.fillMaxSize(),
                             horizontalAlignment = Alignment.CenterHorizontally,
                             verticalArrangement = Arrangement.Center
                         ) {
@@ -190,33 +190,49 @@ fun InfoDialog(
                 Card(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .heightIn(min = 100.dp)
+                        .height(100.dp)
                 ) {
-                    Text(text = "下载失败[${uiState.throwable.localizedMessage}]")
+                    Box(modifier = Modifier.fillMaxSize()) {
+                        Text(
+                            modifier = Modifier.align(Alignment.Center),
+                            text = "下载失败[${uiState.throwable.localizedMessage}]"
+                        )
+                    }
+
                 }
             }
             UiState.None -> {}
             is UiState.Success -> Dialog(onDismissRequest = { showing = false }) {
                 LaunchedEffect(uiState) {
                     installApk(uiState.uri, ctx)
-
                 }
-                Card(
+                AlertDialog(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .heightIn(min = 100.dp)
-                ) {
-                    Text(text = "下载成功")
-                }
+                        .height(100.dp),
+                    onDismissRequest = { showing = false },
+                    title = {
+                        Box(modifier = Modifier.fillMaxSize()) {
+                            Text(modifier = Modifier.align(Alignment.Center), text = "下载成功")
+                        }
+                    },
+                    confirmButton = {
+                        TextButton(onClick = { installApk(uiState.uri, ctx) }) {
+                            Text(text = "安装")
+                        }
+                    }
+                )
             }
             UiState.Pause -> {
                 Dialog(onDismissRequest = { showing = false }) {
                     Card(
                         modifier = Modifier
                             .fillMaxWidth()
-                            .heightIn(min = 100.dp)
+                            .height(100.dp)
                     ) {
-                        Text(text = "下载暂停")
+                        Box(modifier = Modifier.fillMaxSize()) {
+                            Text(modifier = Modifier.align(Alignment.Center), text = "下载暂停")
+                        }
                     }
                 }
             }
