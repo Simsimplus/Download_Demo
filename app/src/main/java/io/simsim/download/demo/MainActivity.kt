@@ -26,7 +26,6 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
 import androidx.core.content.FileProvider
-import androidx.core.net.toFile
 import androidx.lifecycle.lifecycleScope
 import com.google.android.material.snackbar.Snackbar
 import com.liulishuo.filedownloader.FileDownloader
@@ -296,7 +295,7 @@ private fun installApk(
         }
         tmpUri
     } else {
-        FileProvider.getUriForFile(ctx, "${ctx.packageName}.provider", uri.toFile())
+        FileProvider.getUriForFile(ctx, "${ctx.packageName}.provider", File(uri.toString()))
     }
     if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
         val intent = Intent(Intent.ACTION_VIEW)
