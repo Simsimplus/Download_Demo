@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<network-security-config>
+    <domain-config>
+        <domain includeSubdomains="true">example.com</domain>
+        <debug-overrides>
+            <trust-anchors>
+                <certificates src="user" />
+            </trust-anchors>
+        </debug-overrides>
+    </domain-config>
+</network-security-config>
