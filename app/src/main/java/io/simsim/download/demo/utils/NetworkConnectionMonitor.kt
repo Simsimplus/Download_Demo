@@ -12,10 +12,12 @@ import androidx.lifecycle.ProcessLifecycleOwner
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.MainScope
 import kotlinx.coroutines.channels.awaitClose
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.callbackFlow
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.shareIn
+import kotlinx.coroutines.launch
 import splitties.systemservices.connectivityManager
 
 /**
@@ -40,7 +42,11 @@ object NetworkConnectionMonitor : CoroutineScope by MainScope() {
                 .build()
             frameworkListener = object : LifeCycleAwareNetworkCallback() {
                 override fun onLost(network: Network) {
-                    trySend(false)
+                    launch {
+                        // delay in case of network switching
+                        delay(1000)
+                        trySend(isAvailable())
+                    }
                 }
 
                 override fun onAvailable(network: Network) {
@@ -75,7 +81,11 @@ object NetworkConnectionMonitor : CoroutineScope by MainScope() {
             val request = NetworkRequest.Builder().build()
             frameworkListener = object : LifeCycleAwareNetworkCallback() {
                 override fun onLost(network: Network) {
-                    trySend(false)
+                    launch {
+                        // delay in case of network switching
+                        delay(1000)
+                        trySend(isAvailable())
+                    }
                 }
 
                 override fun onAvailable(network: Network) {
