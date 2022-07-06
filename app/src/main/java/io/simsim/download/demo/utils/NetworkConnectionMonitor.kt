@@ -6,6 +6,9 @@ import android.net.ConnectivityManager
 import android.net.Network
 import android.net.NetworkCapabilities
 import android.net.NetworkRequest
+import androidx.lifecycle.DefaultLifecycleObserver
+import androidx.lifecycle.LifecycleOwner
+import androidx.lifecycle.ProcessLifecycleOwner
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.MainScope
 import kotlinx.coroutines.channels.awaitClose
@@ -27,14 +30,15 @@ object NetworkConnectionMonitor : CoroutineScope by MainScope() {
     private var isGeneralCallbackRegistered = false
         @Synchronized set
 
+
     val wifiConnectionFlow = callbackFlow {
         trySend(isWifiConnected())
-        var frameworkListener: ConnectivityManager.NetworkCallback? = null
+        var frameworkListener: LifeCycleAwareNetworkCallback? = null
         if (!isWifiCallbackRegistered) {
             val request = NetworkRequest.Builder()
                 .addTransportType(NetworkCapabilities.TRANSPORT_WIFI)
                 .build()
-            frameworkListener = object : ConnectivityManager.NetworkCallback() {
+            frameworkListener = object : LifeCycleAwareNetworkCallback() {
                 override fun onLost(network: Network) {
                     trySend(false)
                 }
@@ -42,16 +46,22 @@ object NetworkConnectionMonitor : CoroutineScope by MainScope() {
                 override fun onAvailable(network: Network) {
                     trySend(true)
                 }
+
+                override fun onResume(owner: LifecycleOwner) {
+                    trySend(isWifiConnected())
+                }
             }
+            ProcessLifecycleOwner.get().lifecycle.addObserver(frameworkListener)
             connectivityManager.registerNetworkCallback(request, frameworkListener)
             isWifiCallbackRegistered = true
         }
         awaitClose {
             frameworkListener?.let {
                 connectivityManager.unregisterNetworkCallback(it)
+                ProcessLifecycleOwner.get().lifecycle.removeObserver(it)
             }
         }
-    }.distinctUntilChanged()
+    }.distinctUntilChanged().shareIn(this, SharingStarted.Lazily, replay = 1)
 
     /**
      * cold flow of network connection
@@ -60,10 +70,10 @@ object NetworkConnectionMonitor : CoroutineScope by MainScope() {
      */
     val connectionFlow = callbackFlow {
         trySend(isAvailable())
-        var frameworkListener: ConnectivityManager.NetworkCallback? = null
+        var frameworkListener: LifeCycleAwareNetworkCallback? = null
         if (!isGeneralCallbackRegistered) {
             val request = NetworkRequest.Builder().build()
-            frameworkListener = object : ConnectivityManager.NetworkCallback() {
+            frameworkListener = object : LifeCycleAwareNetworkCallback() {
                 override fun onLost(network: Network) {
                     trySend(false)
                 }
@@ -71,14 +81,23 @@ object NetworkConnectionMonitor : CoroutineScope by MainScope() {
                 override fun onAvailable(network: Network) {
                     trySend(true)
                 }
+
+                override fun onResume(owner: LifecycleOwner) {
+                    trySend(isAvailable())
+                }
             }
+            ProcessLifecycleOwner.get().lifecycle.addObserver(frameworkListener)
             connectivityManager.registerNetworkCallback(request, frameworkListener)
             isGeneralCallbackRegistered = true
         }
         awaitClose {
             frameworkListener?.let {
                 connectivityManager.unregisterNetworkCallback(it)
+                ProcessLifecycleOwner.get().lifecycle.removeObserver(it)
             }
         }
     }.distinctUntilChanged().shareIn(this, SharingStarted.Lazily, replay = 1)
 }
+
+abstract class LifeCycleAwareNetworkCallback : ConnectivityManager.NetworkCallback(),
+    DefaultLifecycleObserver

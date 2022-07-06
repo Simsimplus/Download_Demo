@@ -74,6 +74,7 @@ dependencies {
     implementation(AndroidX.activity.compose)
     implementation(AndroidX.compose.material3)
     implementation(AndroidX.lifecycle.runtimeKtx)
+    implementation(AndroidX.lifecycle.process)
     implementation(Splitties.pack.androidMdcWithViewsDsl)
     implementation(AndroidX.compose.material.icons.extended)
     testImplementation(Testing.junit4)
