@@ -21,7 +21,6 @@ import splitties.systemservices.connectivityManager
  */
 object NetworkConnectionMonitor : CoroutineScope by MainScope() {
 
-
     private var isWifiCallbackRegistered = false
         @Synchronized set
 
@@ -53,7 +52,6 @@ object NetworkConnectionMonitor : CoroutineScope by MainScope() {
             }
         }
     }.distinctUntilChanged()
-
 
     /**
      * cold flow of network connection

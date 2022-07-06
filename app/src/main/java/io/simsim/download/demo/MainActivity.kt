@@ -105,7 +105,6 @@ class MainActivity : AppCompatActivity() {
         )
     }
 
-
     companion object {
         const val downloadUrl =
             "https://dldir1v6.qq.com/foxmail/qqmail_android_6.3.4.10153505.551_0.apk"
@@ -127,7 +126,8 @@ fun Content(
                 if (kotlin.runCatching {
                         contentResolver.openInputStream(uri).use {}
                         true
-                    }.getOrDefault(false)) {
+                    }.getOrDefault(false)
+                ) {
                     lastDownloadFileUri = uri
                 }
             }
@@ -159,7 +159,6 @@ fun Content(
             modifier = Modifier.fillMaxSize(),
             color = MaterialTheme.colorScheme.background
         ) {
-
             Column(
                 modifier = Modifier.padding(16.dp),
                 verticalArrangement = Arrangement.spacedBy(
@@ -228,7 +227,7 @@ fun Content(
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun InfoDialog(
-    uiState: UiState,
+    uiState: UiState
 ) {
     val ctx = LocalContext.current
     var showing by remember {
@@ -259,7 +258,6 @@ fun InfoDialog(
                         }
                     }
                 }
-
             }
             is UiState.Failure -> Dialog(onDismissRequest = { showing = false }) {
                 Card(
@@ -273,7 +271,6 @@ fun InfoDialog(
                             text = "下载失败[${uiState.throwable.localizedMessage}]"
                         )
                     }
-
                 }
             }
             UiState.None -> {}
@@ -282,12 +279,12 @@ fun InfoDialog(
 //                    installApk(uiState.uri, ctx)
 //                }
                 Dialog(
-                    onDismissRequest = { showing = false },
+                    onDismissRequest = { showing = false }
                 ) {
                     Card(
                         modifier = Modifier
                             .fillMaxWidth()
-                            .height(150.dp),
+                            .height(150.dp)
                     ) {
                         Column(
                             modifier = Modifier
@@ -299,7 +296,7 @@ fun InfoDialog(
                                     .align(Alignment.CenterHorizontally)
                                     .weight(1f),
                                 textAlign = TextAlign.Center,
-                                text = "下载成功",
+                                text = "下载成功"
                             )
                             TextButton(
                                 modifier = Modifier.align(Alignment.CenterHorizontally),
@@ -325,10 +322,8 @@ fun InfoDialog(
                 }
             }
         }
-
     }
 }
-
 
 private fun installApk(
     uri: Uri,

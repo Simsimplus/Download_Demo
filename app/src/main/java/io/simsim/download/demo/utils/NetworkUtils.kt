@@ -21,7 +21,7 @@ fun isWifiConnected(): Boolean {
     if (network != null) {
         val nc = connectivityManager.getNetworkCapabilities(network)
         if (nc != null) {
-            //移动数据
+            // 移动数据
             return nc.hasTransport(NetworkCapabilities.TRANSPORT_WIFI)
         }
     }
@@ -36,7 +36,7 @@ fun isCellConnected(): Boolean {
     if (network != null) {
         val nc = connectivityManager.getNetworkCapabilities(network)
         if (nc != null) {
-            //移动数据
+            // 移动数据
             return nc.hasTransport(NetworkCapabilities.TRANSPORT_CELLULAR)
         }
     }
@@ -46,7 +46,7 @@ fun isCellConnected(): Boolean {
 /**
  * Get IP address from first non-localhost interface
  * @param useIPv4   true=return ipv4, false=return ipv6
- * @return  address or empty string
+ * @return address or empty string
  */
 fun getIPAddress(useIPv4: Boolean = true): String {
     try {

@@ -25,7 +25,6 @@ import splitties.systemservices.downloadManager
 import splitties.toast.UnreliableToastApi
 import splitties.toast.toast
 
-
 class DownloadViewModel : ViewModel() {
     val uiState = MutableStateFlow<UiState>(UiState.None)
 
@@ -51,14 +50,17 @@ class DownloadViewModel : ViewModel() {
             .setDestinationInExternalPublicDir(Environment.DIRECTORY_DOWNLOADS, fileName)
         val downloadId = downloadManager.enqueue(downloadRequest)
         DataStore.lastDownloadId = downloadId
-        appCtx.registerReceiver(object : BroadcastReceiver() {
-            override fun onReceive(context: Context?, intent: Intent?) {
-                val id = intent?.getLongExtra(DownloadManager.EXTRA_DOWNLOAD_ID, -1) ?: -1
-                if (downloadId == id) {
-                    toast("download complete")
+        appCtx.registerReceiver(
+            object : BroadcastReceiver() {
+                override fun onReceive(context: Context?, intent: Intent?) {
+                    val id = intent?.getLongExtra(DownloadManager.EXTRA_DOWNLOAD_ID, -1) ?: -1
+                    if (downloadId == id) {
+                        toast("download complete")
+                    }
                 }
-            }
-        }, IntentFilter(DownloadManager.ACTION_DOWNLOAD_COMPLETE))
+            },
+            IntentFilter(DownloadManager.ACTION_DOWNLOAD_COMPLETE)
+        )
         var isDownloadFinished = false
         while (!isDownloadFinished) {
             delay(500)
@@ -96,7 +98,6 @@ class DownloadViewModel : ViewModel() {
                 }
             }
         }
-
     }
 
     private inner class CustomFileDownloadListener(val destPath: String) : FileDownloadListener() {
@@ -122,7 +123,6 @@ class DownloadViewModel : ViewModel() {
 
         override fun warn(task: BaseDownloadTask?) {
         }
-
     }
 }
 

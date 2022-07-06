@@ -9,7 +9,6 @@ import kotlinx.coroutines.flow.distinctUntilChanged
 import splitties.init.appCtx
 import java.io.File
 
-
 @RequiresApi(Build.VERSION_CODES.Q)
 class CacheFileObserver(private val file: File, val onChange: (event: Int, path: String?) -> Unit) :
     FileObserver(appCtx.cacheDir, ALL_EVENTS) {
@@ -38,7 +37,5 @@ fun observeCacheFileExist(file: File) = callbackFlow {
         }
     }
     awaitClose {
-
     }
 }.distinctUntilChanged()
-

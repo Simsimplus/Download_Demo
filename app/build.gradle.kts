@@ -1,8 +1,9 @@
+import de.fayard.refreshVersions.core.versionFor
+
 plugins {
     id("com.android.application")
     id("org.jetbrains.kotlin.android")
 }
-val compose_version: String by rootProject.extra
 android {
     compileSdk = 32
 
@@ -49,7 +50,7 @@ android {
         compose = true
     }
     composeOptions {
-        kotlinCompilerExtensionVersion = compose_version
+        kotlinCompilerExtensionVersion = versionFor(AndroidX.compose.ui)
     }
     packagingOptions {
         resources {

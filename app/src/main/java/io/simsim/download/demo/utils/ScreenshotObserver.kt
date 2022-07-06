@@ -31,7 +31,6 @@ object ScreenshotObserver {
                         }
                     )
                 }
-
             }
         }
         appCtx.contentResolver.registerContentObserver(imageCollection, true, contentObserver)
@@ -83,10 +82,9 @@ object ScreenshotObserver {
                 val name = cursor.getString(displayNameColumn)
                 val relativePath = cursor.getString(relativePathColumn)
                 isScreenshot = name.contains("screenshot", true) or
-                        relativePath.contains("screenshot", true)
+                    relativePath.contains("screenshot", true)
             }
             isScreenshot
         } ?: false
     }
-
 }
