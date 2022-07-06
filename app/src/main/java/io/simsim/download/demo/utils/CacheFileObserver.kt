@@ -10,11 +10,11 @@ import splitties.init.appCtx
 import java.io.File
 
 @RequiresApi(Build.VERSION_CODES.Q)
-class CacheFileObserver(private val file: File, val onChange: (event: Int, path: String?) -> Unit) :
+class CacheFileObserver(private val file: File, val onChange: (event: Int) -> Unit) :
     FileObserver(appCtx.cacheDir, ALL_EVENTS) {
     override fun onEvent(event: Int, path: String?) {
         if (path == file.name) {
-            onChange(event, path)
+            onChange(event)
         }
     }
 }
@@ -22,7 +22,7 @@ class CacheFileObserver(private val file: File, val onChange: (event: Int, path:
 fun observeCacheFileExist(file: File) = callbackFlow {
     send(file.exists())
     if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
-        val observer = CacheFileObserver(file) { event: Int, _: String? ->
+        val observer = CacheFileObserver(file) { event: Int ->
             when (event) {
                 FileObserver.CREATE, FileObserver.MODIFY, FileObserver.MOVED_TO -> trySend(true)
                 FileObserver.DELETE, FileObserver.DELETE_SELF, FileObserver.MOVE_SELF -> trySend(
