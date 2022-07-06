@@ -214,7 +214,7 @@ fun Content(
                 }) {
                     Text(text = "系统下载器下载")
                 }
-                if (Build.VERSION.SDK_INT < Build.VERSION_CODES.R) {
+                if (Build.VERSION.SDK_INT < Build.VERSION_CODES.Q) {
                     OutlinedButton(onClick = onRequestPermissions) {
                         Text(text = "申请外部存储权限(Api<29)")
                     }
