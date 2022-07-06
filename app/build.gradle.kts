@@ -3,6 +3,7 @@ import de.fayard.refreshVersions.core.versionFor
 plugins {
     id("com.android.application")
     id("org.jetbrains.kotlin.android")
+    id("com.diffplug.spotless") version "6.8.0"
 }
 android {
     compileSdk = 32
@@ -84,4 +85,17 @@ dependencies {
     debugImplementation(Splitties.stethoInit)
     // fdm
     implementation("com.liulishuo.filedownloader:library:1.7.7")
+}
+
+spotless {
+    kotlin {
+        target("**/*.kt")
+        targetExclude("src/androidTest/**/*.kt")
+        ktlint()
+            .editorConfigOverride(mapOf("disabled_rules" to "no-wildcard-imports,filename"))
+    }
+    kotlinGradle {
+        target("*.gradle.kts") // default target for kotlinGradle
+        ktlint() // or ktfmt() or prettier()
+    }
 }
