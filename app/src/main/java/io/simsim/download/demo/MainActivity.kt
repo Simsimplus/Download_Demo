@@ -1,11 +1,13 @@
 package io.simsim.download.demo
 
 import android.Manifest
+import android.app.Activity
 import android.content.Context
 import android.content.Intent
 import android.net.Uri
 import android.os.Build
 import android.os.Bundle
+import android.view.View
 import android.view.ViewGroup
 import android.webkit.URLUtil
 import androidx.activity.compose.setContent
@@ -34,7 +36,12 @@ import io.simsim.download.demo.utils.DataStore
 import io.simsim.download.demo.utils.NetworkConnectionMonitor
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
-import splitties.permissions.requestPermission
+import splitties.alertdialog.appcompat.alertDialog
+import splitties.alertdialog.appcompat.cancelButton
+import splitties.alertdialog.appcompat.coroutines.showAndAwait
+import splitties.alertdialog.appcompat.okButton
+import splitties.experimental.ExperimentalSplittiesApi
+import splitties.permissions.ensureAllPermissions
 import splitties.snackbar.snackForever
 import splitties.systemservices.downloadManager
 import java.io.File
@@ -46,25 +53,55 @@ class MainActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         FileDownloader.setup(this)
-        cacheDir.deleteRecursively()
-        lifecycleScope.launch {
-            if (Build.VERSION.SDK_INT < Build.VERSION_CODES.Q) {
-                requestPermission(Manifest.permission.READ_EXTERNAL_STORAGE)
-            }
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.Q) {
+            requestStoragePermissions()
         }
         setContent {
-            Content(vm = vm)
+            Content(vm = vm, onRequestPermissions = this::requestStoragePermissions)
         }
         lifecycleScope.launch {
             NetworkConnectionMonitor.connectionFlow.collectLatest {
                 if (!it) {
-                    snack = window.decorView.findViewById<ViewGroup>(android.R.id.content)
-                        .snackForever("网络无连接")
+                    snack = contentView.snackForever("网络无连接")
                 } else {
                     snack?.dismiss()
                 }
             }
         }
+    }
+
+    @OptIn(ExperimentalSplittiesApi::class)
+    private fun requestStoragePermissions() = lifecycleScope.launch {
+        ensureAllPermissions(
+            Manifest.permission.READ_EXTERNAL_STORAGE,
+            Manifest.permission.WRITE_EXTERNAL_STORAGE,
+            showRationaleAndContinueOrReturn = {
+                alertDialog {
+                    setMessage("为了正常下载安装，请同意外部存储权限")
+                    okButton()
+                    cancelButton()
+                }.showAndAwait(
+                    okValue = true,
+                    cancelValue = false,
+                    dismissValue = false
+                )
+            },
+            showRationaleBeforeFirstAsk = true,
+            askOpenSettingsOrReturn = {
+                alertDialog {
+                    setMessage("您已选择不再提醒，请前往设置中配置外部存储权限")
+                    okButton()
+                    cancelButton()
+                }.showAndAwait(
+                    okValue = true,
+                    cancelValue = false,
+                    dismissValue = false
+                )
+            },
+            returnOrThrowBlock = {
+                return@launch
+            }
+        )
     }
 
 
@@ -77,6 +114,7 @@ class MainActivity : AppCompatActivity() {
 @Composable
 fun Content(
     vm: DownloadViewModel,
+    onRequestPermissions: () -> Unit = {}
 ) = LocalContext.current.run {
     var lastDownloadFileUri by remember {
         mutableStateOf<Uri?>(null)
@@ -168,6 +206,11 @@ fun Content(
                     vm.downloadWithDM(url)
                 }) {
                     Text(text = "系统下载器下载")
+                }
+                if (Build.VERSION.SDK_INT < Build.VERSION_CODES.R) {
+                    OutlinedButton(onClick = onRequestPermissions) {
+                        Text(text = "申请外部存储权限(Api<29)")
+                    }
                 }
             }
             InfoDialog(uiState = uiState)
@@ -314,3 +357,6 @@ private fun installApk(
         ctx.startActivity(intent)
     }
 }
+
+val Activity.contentView: View
+    get() = window.decorView.findViewById<ViewGroup>(android.R.id.content)
