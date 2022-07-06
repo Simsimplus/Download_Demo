@@ -34,6 +34,7 @@ import com.liulishuo.filedownloader.FileDownloader
 import io.simsim.download.demo.ui.theme.DownloadDemoTheme
 import io.simsim.download.demo.utils.DataStore
 import io.simsim.download.demo.utils.NetworkConnectionMonitor
+import io.simsim.download.demo.utils.observeCacheFileExist
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 import splitties.alertdialog.appcompat.alertDialog
@@ -145,11 +146,10 @@ fun Content(
         mutableStateOf(MainActivity.downloadUrl)
     }
     val fileName = URLUtil.guessFileName(url, null, null)
-    val downloadPathFD = File(cacheDir, fileName).also {
-        kotlin.runCatching {
-            it.delete()
-        }
-    }.path
+    val downloadFileFD = File(cacheDir, fileName)
+    val downloadPathFD = downloadFileFD.path
+
+    val isFDFileExist by observeCacheFileExist(downloadFileFD).collectAsState(initial = downloadFileFD.exists())
     val focusRequester = remember {
         FocusRequester()
     }
@@ -187,10 +187,17 @@ fun Content(
                         }
                     }
                 )
-                OutlinedButton(enabled = buttonEnable, onClick = {
-                    vm.downloadWithFD(url, downloadPathFD)
-                }) {
-                    Text(text = "应用内下载")
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    OutlinedButton(enabled = buttonEnable, onClick = {
+                        vm.downloadWithFD(url, downloadPathFD)
+                    }) {
+                        Text(text = "应用内下载")
+                    }
+                    if (isFDFileExist) {
+                        TextButton(onClick = { runCatching { downloadFileFD.delete() } }) {
+                            Text(text = "删除已下载")
+                        }
+                    }
                 }
                 OutlinedButton(enabled = buttonEnable, onClick = {
                     Intent().apply {
